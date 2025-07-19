@@ -123,7 +123,7 @@ public class Character : MonoBehaviour
             mount.OnDismount(transform);
             mount = null;
             rb.isKinematic = false;
-            animator.SetTrigger("Idle");
+            SetTrigger("Idle");
         }
     }
 
@@ -148,7 +148,7 @@ public class Character : MonoBehaviour
     private IEnumerator TraversePath(Vector3[] path, bool inclusive)
     {
         if (path.Length == 0 || Mounted) yield break;
-        animator.SetTrigger("Walk");
+        SetTrigger("Walk");
         yield return RigidBodyMover.TraversePath(rb, path, MoveSpeed, inclusive);
         animator.SetTrigger("Idle");
     }
@@ -165,7 +165,7 @@ public class Character : MonoBehaviour
         if (target.CheckDestroyed()) yield break;
         if (Vector3.Distance(target.Position, transform.position) < 2f)
         {
-            animator.SetTrigger("Use");
+            SetTrigger("Use");
             target.Use();
         }
     }
@@ -189,7 +189,7 @@ public class Character : MonoBehaviour
                 }
                 if (target.OnMount(transform))
                 {
-                    animator.SetTrigger("Sitting");
+                    SetTrigger("Sitting");
                     mount = target;
                     rb.isKinematic = true;
                 }
@@ -197,7 +197,17 @@ public class Character : MonoBehaviour
         }
     }
 
-
+    private void SetTrigger(string trigger)
+    {
+        foreach (var param in animator.parameters)
+        {
+            if (param.type == AnimatorControllerParameterType.Trigger)
+            {
+                animator.ResetTrigger(param.name);
+            }
+        }
+        animator.SetTrigger(trigger);
+    }
 
 
 

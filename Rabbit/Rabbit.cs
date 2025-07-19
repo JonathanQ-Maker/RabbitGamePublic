@@ -123,9 +123,21 @@ public class Rabbit : MonoBehaviour
     private IEnumerator TraversePath(Vector3[] path, bool inclusive)
     {
         if (path.Length == 0) yield break;
-        animator.SetTrigger("Walk");
+        SetTrigger("Walk");
         yield return RigidBodyMover.TraversePath(rb, path, MoveSpeed, inclusive);
-        animator.SetTrigger("Idle");
+        SetTrigger("Idle");
+    }
+
+    private void SetTrigger(string trigger)
+    {
+        foreach (var param in animator.parameters)
+        {
+            if (param.type == AnimatorControllerParameterType.Trigger)
+            {
+                animator.ResetTrigger(param.name);
+            }
+        }
+        animator.SetTrigger(trigger);
     }
 
 
