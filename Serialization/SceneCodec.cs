@@ -13,8 +13,10 @@ public static class SceneCodec
         {
             if (child.TryGetComponent(out IJsonSerializable serializable))
             { 
-                JObject json = new JObject();
-                json.Add("type", serializable.GetType().FullName);
+                JObject json = new JObject
+                {
+                    { "type", serializable.GetType().FullName }
+                };
                 serializable.Serialize(json);
                 root.Add(json);
             }

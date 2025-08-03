@@ -158,11 +158,11 @@ public class Character : MonoBehaviour
         if (Vector3.Distance(target.Position, transform.position) > 1.5f)
             yield return TraversePath(path, false);
 
-        if (target.CheckDestroyed()) yield break;
+        if (CheckDestroyed(target)) yield break;
 
         yield return RigidBodyMover.LookAt(rb, target.Position);
 
-        if (target.CheckDestroyed()) yield break;
+        if (CheckDestroyed(target)) yield break;
         if (Vector3.Distance(target.Position, transform.position) < 2f)
         {
             SetTrigger("Use");
@@ -175,10 +175,10 @@ public class Character : MonoBehaviour
         if (Vector3.Distance(target.Position, transform.position) > 1.5f)
             yield return TraversePath(path, false);
 
-        if (target.CheckDestroyed()) yield break;
+        if (CheckDestroyed(target)) yield break;
         yield return RigidBodyMover.LookAt(rb, target.Position);
 
-        if (target.CheckDestroyed()) yield break;
+        if (CheckDestroyed(target)) yield break;
         if (Vector3.Distance(target.Position, transform.position) < 3f)
         {
             if (target.CanMount)
@@ -207,6 +207,13 @@ public class Character : MonoBehaviour
             }
         }
         animator.SetTrigger(trigger);
+    }
+
+    private static bool CheckDestroyed(object obj)
+    {
+        if (obj is MonoBehaviour)
+            return obj as MonoBehaviour == null;
+        return obj == null;
     }
 
 
