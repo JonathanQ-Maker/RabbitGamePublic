@@ -1,29 +1,20 @@
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(PrefabRegistry))]
+[CustomEditor(typeof(SerializablePrefabRegistry))]
 public class PrefabRegistryEditor : Editor
 {
-    private string removeKey = string.Empty;
-    private GameObject prefab;
+    private string removeName = string.Empty;
+    private SerializablePrefab prefab;
 
-    private PrefabRegistry registry;
-    private SerializedProperty keysProp;
+    private SerializablePrefabRegistry registry;
     private SerializedProperty valuesProp;
-    private HashSet<string> keys = new HashSet<string>();
     private void OnEnable()
     {
-        registry = (PrefabRegistry)target;
-        keysProp = serializedObject.FindProperty("keys");
+        registry = (SerializablePrefabRegistry)target;
         valuesProp = serializedObject.FindProperty("values");
 
         ClearInvalid();
-        for (int i = 0; i < keysProp.arraySize; ++i)
-        {
-            SerializedProperty element = keysProp.GetArrayElementAtIndex(i);
-            keys.Add(element.stringValue);
-        }
         serializedObject.ApplyModifiedProperties();
     }
 
@@ -38,26 +29,46 @@ public class PrefabRegistryEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
-    private void AddPrefab(string key, GameObject prefab)
+    private bool HasPrefab(SerializablePrefab prefab)
     {
-        keysProp.arraySize++;
-        valuesProp.arraySize++;
-        SerializedProperty newKey = keysProp.GetArrayElementAtIndex(keysProp.arraySize - 1);
-        SerializedProperty newValue = valuesProp.GetArrayElementAtIndex(valuesProp.arraySize - 1);
-        newKey.stringValue = key;
-        newValue.objectReferenceValue = prefab;
-        keys.Add(key);
+        for (int i = 0; i < valuesProp.arraySize; ++i)
+        {
+            SerializedProperty prefabProp = valuesProp.GetArrayElementAtIndex(i);
+            if (ReferenceEquals(prefabProp.objectReferenceValue, prefab))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private void RemovePrefab(string key)
+    private bool HasPrefab(string prefabName)
     {
-        for (int i = 0; i < keysProp.arraySize; ++i)
+        for (int i = 0; i < valuesProp.arraySize; ++i)
         {
-            SerializedProperty keyElement = keysProp.GetArrayElementAtIndex(i);
-            if (keyElement.stringValue.Equals(key))
+            SerializablePrefab prefab = valuesProp.GetArrayElementAtIndex(i).objectReferenceValue as SerializablePrefab;
+            if (prefab.PrefabName.Equals(prefabName))
             {
-                keys.Remove(keyElement.stringValue);
-                keysProp.DeleteArrayElementAtIndex(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void AddPrefab(SerializablePrefab prefab)
+    {
+        valuesProp.arraySize++;
+        SerializedProperty newValue = valuesProp.GetArrayElementAtIndex(valuesProp.arraySize - 1);
+        newValue.objectReferenceValue = prefab;
+    }
+
+    private void RemovePrefab(string prefabName)
+    {
+        for (int i = 0; i < valuesProp.arraySize; ++i)
+        {
+            SerializablePrefab prefab = valuesProp.GetArrayElementAtIndex(i).objectReferenceValue as SerializablePrefab;
+            if (prefab.PrefabName.Equals(prefabName))
+            {
                 valuesProp.DeleteArrayElementAtIndex(i);
                 break;
             }
@@ -71,7 +82,6 @@ public class PrefabRegistryEditor : Editor
             if (valuesProp.GetArrayElementAtIndex(i).objectReferenceValue == null)
             {
                 valuesProp.DeleteArrayElementAtIndex(i);
-                keysProp.DeleteArrayElementAtIndex(i);
                 --i;
             }
         }
@@ -82,12 +92,12 @@ public class PrefabRegistryEditor : Editor
     {
         EditorGUILayout.BeginVertical();
         EditorGUILayout.LabelField("Add Prefab");
-        prefab = EditorGUILayout.ObjectField("Prefab", prefab, typeof(GameObject), false) as GameObject;
+        prefab = EditorGUILayout.ObjectField("Prefab", prefab, typeof(SerializablePrefab), false) as SerializablePrefab;
 
-        EditorGUI.BeginDisabledGroup(prefab == null || keys.Contains(prefab.name));
+        EditorGUI.BeginDisabledGroup(prefab == null || HasPrefab(prefab));
         if (GUILayout.Button("Add Prefab"))
         {
-            AddPrefab(prefab.name, prefab);
+            AddPrefab(prefab);
             prefab = null;
         }
         EditorGUI.EndDisabledGroup();
@@ -98,11 +108,11 @@ public class PrefabRegistryEditor : Editor
     {
         EditorGUILayout.BeginVertical();
         EditorGUILayout.LabelField("Remove Prefab");
-        removeKey = EditorGUILayout.TextField("Key", removeKey).Trim();
-        EditorGUI.BeginDisabledGroup(!keys.Contains(removeKey));
+        removeName = EditorGUILayout.TextField("Name", removeName).Trim();
+        EditorGUI.BeginDisabledGroup(!HasPrefab(removeName));
         if (GUILayout.Button("Remove Prefab"))
         {
-            RemovePrefab(removeKey);
+            RemovePrefab(removeName);
         }
         EditorGUI.EndDisabledGroup();
         EditorGUILayout.EndVertical();
@@ -119,9 +129,13 @@ public class PrefabRegistryEditor : Editor
             SerializedProperty valueElement = valuesProp.GetArrayElementAtIndex(i);
 
             EditorGUILayout.BeginHorizontal();
-            Texture preview = AssetPreview.GetAssetPreview(valueElement.objectReferenceValue);
+            Texture preview = AssetPreview.GetAssetPreview(((MonoBehaviour)valueElement.objectReferenceValue).gameObject);
             GUILayout.Label(preview, GUILayout.Width(64), GUILayout.Height(64));
-            EditorGUILayout.ObjectField(valueElement.objectReferenceValue, typeof(GameObject), false);
+
+                EditorGUILayout.BeginVertical();
+                    EditorGUILayout.LabelField(((SerializablePrefab)valueElement.objectReferenceValue).PrefabName);
+                    EditorGUILayout.ObjectField(valueElement.objectReferenceValue, typeof(GameObject), false);
+                EditorGUILayout.EndVertical();
             EditorGUILayout.Space();
             EditorGUILayout.EndHorizontal();
         }

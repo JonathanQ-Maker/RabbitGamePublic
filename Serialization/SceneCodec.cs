@@ -1,57 +1,41 @@
 using UnityEngine;
-using System;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json.Linq;
 
 public static class SceneCodec
 {
-    public static JArray Serialize()
+    public static void Serialize(JObject sceneData)
     {
         JArray root = new JArray();
         GameObject[] rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
         foreach (GameObject child in rootObjects)
         {
-            if (child.TryGetComponent(out IJsonSerializable serializable))
+            if (child.TryGetComponent(out SerializablePrefab serializable))
             { 
                 JObject json = new JObject
                 {
-                    { "type", serializable.GetType().FullName }
+                    { "PrefabName", serializable.PrefabName }
                 };
                 serializable.Serialize(json);
                 root.Add(json);
             }
         }
-        return root;
+        sceneData["objects"] = root;
     }
 
-    public static void Deserialize(JArray root)
+    public static void Deserialize(JObject sceneData, SerializablePrefabRegistry prefabRegistry)
     {
         GameObject[] rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
         foreach (GameObject child in rootObjects)
         {
-            if (child.TryGetComponent(out IJsonSerializable serializable))
+            if (child.TryGetComponent(out SerializablePrefab serializable))
                 GameObject.Destroy(child);
         }
 
-        foreach (JObject child in root)
+        foreach (JObject child in (JArray)sceneData["objects"])
         {
-            Type type = Type.GetType(child.Value<string>("type"));
-            if (typeof(IJsonSerializable).IsAssignableFrom(type))
-            {
-                GameObject newGameObject = new GameObject();
-                IJsonSerializable serializable = newGameObject.AddComponent(type) as IJsonSerializable;
-                serializable.Deserialize(child);
-            }
-            else
-            {
-                Debug.LogWarning($"Tried to deserialize an incompatible type \"{child.Value<string>("type")}\"");
-            }
+            SerializablePrefab prefab = prefabRegistry.Get(child.Value<string>("PrefabName"));
+            Object.Instantiate(prefab).Deserialize(child);
         }
     }
-}
-
-public interface IJsonSerializable
-{
-    void Serialize(JObject json);
-    void Deserialize(JObject json);
 }

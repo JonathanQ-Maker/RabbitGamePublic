@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using UnityEngine;
 
-public class Rabbit : MonoBehaviour
+public class Rabbit : MonoBehaviour, IJsonSerializable
 {
     private IEnumerator actionLoop;
     private IEnumerator ActionLoop
@@ -88,6 +89,21 @@ public class Rabbit : MonoBehaviour
 
 
 
+    /////////////////////////////////////////
+    // Public Functions
+    /////////////////////////////////////////
+    public void Deserialize(JObject data)
+    {
+
+    }
+
+    public void Serialize(JObject data)
+    {
+
+    }
+
+
+
 
 
 
@@ -139,6 +155,8 @@ public class Rabbit : MonoBehaviour
         }
         animator.SetTrigger(trigger);
     }
+
+ 
 
 
 

@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using UnityEngine;
 
-public class Character : MonoBehaviour
+public class Character : MonoBehaviour, IJsonSerializable
 {
     private IEnumerator actionLoop;
     private IEnumerator ActionLoop
@@ -132,6 +133,27 @@ public class Character : MonoBehaviour
 
 
 
+
+
+
+    /////////////////////////////////////////
+    // Public Functions
+    /////////////////////////////////////////
+    public void Deserialize(JObject data)
+    {
+        
+    }
+
+    public void Serialize(JObject data)
+    {
+        
+    }
+
+
+
+
+
+
     /////////////////////////////////////////
     // Private Helper Functions
     /////////////////////////////////////////
@@ -215,6 +237,8 @@ public class Character : MonoBehaviour
             return obj as MonoBehaviour == null;
         return obj == null;
     }
+
+ 
 
 
 
