@@ -23,8 +23,6 @@ public class PrefabRegistryEditor : Editor
         serializedObject.Update();
         DrawAddPrefab();
         EditorGUILayout.Space();
-        DrawRemovePrefab();
-        EditorGUILayout.Space();
         DrawPrefabsDisplay();
         serializedObject.ApplyModifiedProperties();
     }
@@ -42,37 +40,11 @@ public class PrefabRegistryEditor : Editor
         return false;
     }
 
-    private bool HasPrefab(string prefabName)
-    {
-        for (int i = 0; i < valuesProp.arraySize; ++i)
-        {
-            SerializablePrefab prefab = valuesProp.GetArrayElementAtIndex(i).objectReferenceValue as SerializablePrefab;
-            if (prefab.PrefabName.Equals(prefabName))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void AddPrefab(SerializablePrefab prefab)
     {
         valuesProp.arraySize++;
         SerializedProperty newValue = valuesProp.GetArrayElementAtIndex(valuesProp.arraySize - 1);
         newValue.objectReferenceValue = prefab;
-    }
-
-    private void RemovePrefab(string prefabName)
-    {
-        for (int i = 0; i < valuesProp.arraySize; ++i)
-        {
-            SerializablePrefab prefab = valuesProp.GetArrayElementAtIndex(i).objectReferenceValue as SerializablePrefab;
-            if (prefab.PrefabName.Equals(prefabName))
-            {
-                valuesProp.DeleteArrayElementAtIndex(i);
-                break;
-            }
-        }
     }
 
     private void ClearInvalid()
@@ -104,27 +76,12 @@ public class PrefabRegistryEditor : Editor
         EditorGUILayout.EndVertical();
     }
 
-    private void DrawRemovePrefab()
-    {
-        EditorGUILayout.BeginVertical();
-        EditorGUILayout.LabelField("Remove Prefab");
-        removeName = EditorGUILayout.TextField("Name", removeName).Trim();
-        EditorGUI.BeginDisabledGroup(!HasPrefab(removeName));
-        if (GUILayout.Button("Remove Prefab"))
-        {
-            RemovePrefab(removeName);
-        }
-        EditorGUI.EndDisabledGroup();
-        EditorGUILayout.EndVertical();
-    }
-
     private void DrawPrefabsDisplay()
     {
         EditorGUILayout.BeginVertical();
         EditorGUILayout.LabelField($"Prefabs ({valuesProp.arraySize})");
-        EditorGUI.BeginDisabledGroup(true);
         // Draw Prefabs
-        for (int i = 0; i < valuesProp.arraySize; ++i)
+        for (int i = valuesProp.arraySize-1; i >= 0; --i)
         {
             SerializedProperty valueElement = valuesProp.GetArrayElementAtIndex(i);
 
@@ -132,14 +89,20 @@ public class PrefabRegistryEditor : Editor
             Texture preview = AssetPreview.GetAssetPreview(((MonoBehaviour)valueElement.objectReferenceValue).gameObject);
             GUILayout.Label(preview, GUILayout.Width(64), GUILayout.Height(64));
 
-                EditorGUILayout.BeginVertical();
-                    EditorGUILayout.LabelField(((SerializablePrefab)valueElement.objectReferenceValue).PrefabName);
-                    EditorGUILayout.ObjectField(valueElement.objectReferenceValue, typeof(GameObject), false);
-                EditorGUILayout.EndVertical();
+            EditorGUILayout.BeginVertical();
+            EditorGUILayout.LabelField(((SerializablePrefab)valueElement.objectReferenceValue).PrefabName);
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.ObjectField(valueElement.objectReferenceValue, typeof(GameObject), false);
+            EditorGUI.EndDisabledGroup();
+            if (GUILayout.Button("Remove"))
+            {
+                valuesProp.DeleteArrayElementAtIndex(i);
+                return;
+            }
+            EditorGUILayout.EndVertical();
             EditorGUILayout.Space();
             EditorGUILayout.EndHorizontal();
         }
-        EditorGUI.EndDisabledGroup();
         EditorGUILayout.EndVertical();
     }
 }
