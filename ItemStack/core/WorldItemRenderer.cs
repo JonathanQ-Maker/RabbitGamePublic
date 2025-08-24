@@ -2,11 +2,15 @@
 
 public class WorldItemRenderer : MonoBehaviour
 {
-    [SerializeField]
-    private ItemStack item;
-    public ItemStack Item 
+    private ItemStack itemStack;
+    public ItemStack ItemStack 
     {
-        get { return item; }
-        set { item = value; }
+        get { return itemStack; }
+        set { itemStack = value; }
     }
+
+
+
+
+
 }

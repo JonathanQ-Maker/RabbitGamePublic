@@ -1,0 +1,99 @@
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class ItemSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+{
+    private int slotIndex = -1;
+    private IItemContainer container;
+    public bool interactable;
+
+
+    [SerializeField]
+    private UIItemRenderer uiItemPrefab;
+    [SerializeField]
+    private Image overlay;
+    [SerializeField]
+    private Transform itemHolder;
+    public Transform ItemHolder { get { return itemHolder; } }
+
+
+    public void SetContainer(int slotIndex, IItemContainer container)
+    {
+        this.slotIndex = slotIndex;
+        this.container = container;
+    }
+
+    public void UpdateRender()
+    {
+        // TODO: render the item
+        foreach (Transform child in itemHolder)
+        {
+            Destroy(child);
+        }
+
+        if (container == null) return;
+        if (slotIndex < 0 || slotIndex >= container.Length) return;
+
+        ItemStack itemInSlot = GetItem();
+        if (itemInSlot != null)
+        {
+            UIItemRenderer uiItem = Instantiate(uiItemPrefab, itemHolder);
+            uiItem.ItemStack = itemInSlot;
+            uiItem.UpdateRender();
+            MountItem(uiItem);
+        }
+    }
+
+    public bool MountItem(UIItemRenderer uiItem)
+    {
+        if (!interactable) return false;
+
+        uiItem.parentSlot = this;
+        SetItem(uiItem.ItemStack);
+        return true;
+    }
+
+    public void OnDismountItem()
+    { 
+        SetItem(null);
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!interactable) return;
+
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!interactable) return;
+        overlay.enabled = true;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        overlay.enabled = false;
+    }
+
+
+
+
+
+
+
+    public ItemStack GetItem()
+    { 
+        return container.GetItem(slotIndex);
+    }
+
+    public void SetItem(ItemStack itemStack)
+    { 
+        container.SetItem(slotIndex, itemStack);
+    }
+}
