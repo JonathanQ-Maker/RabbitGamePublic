@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class ItemSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     private int slotIndex = -1;
+    public int SlotIndex { get { return slotIndex; } }
     private IItemContainer container;
     public bool interactable;
 
@@ -29,6 +30,7 @@ public class ItemSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPo
         // TODO: render the item
         foreach (Transform child in itemHolder)
         {
+            Debug.Log("Slot UpdateRender destroy");
             Destroy(child.gameObject);
         }
 

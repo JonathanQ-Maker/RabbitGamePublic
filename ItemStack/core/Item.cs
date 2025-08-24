@@ -66,7 +66,7 @@ public class Item : ScriptableObject
         return true;
     }
 
-    public virtual int TransferToStack(ItemStack itemStack, ItemStack from, int amountRequested)
+    public virtual int CombineStack(ItemStack itemStack, ItemStack from, int amountRequested)
     {
         if (!CanCombine(itemStack, from)) return 0;
 

@@ -74,7 +74,7 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
         ((RectTransform)transform).localPosition = Vector3.zero;
     }
 
-    public int TransferStackTo(ItemStack other, int amountRequested)
+    public int CombineStack(ItemStack other, int amountRequested)
     {
         if (parentSlot == null || !parentSlot.interactable)
             return 0;
@@ -83,8 +83,10 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
         if (!ItemStack.Item.CanCombine(ItemStack, other))
             return 0;
 
-        int amountTransferred = ItemStack.Item.TransferToStack(ItemStack, other, amountRequested);
-        UpdateRender();
+        int amountTransferred = ItemStack.Item.CombineStack(ItemStack, other, amountRequested);
+
+        if (amountTransferred != 0)
+            UpdateRender();
         return amountTransferred;
     }
 
@@ -128,6 +130,7 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        ActionLoop = null;
         if (eventData.button != InputButton.Left) return;
 
         // did we drop on something?
@@ -157,11 +160,8 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
         if (eventData.pointerEnter.TryGetComponent(out UIItemRenderer uiItem))
         {
             // yup, try to combine
-            if (uiItem.TransferStackTo(ItemStack, ItemStack.Item.MaxStackCount) > 0)
-            {
-                // some did combine
+            if (uiItem.CombineStack(ItemStack, ItemStack.Item.MaxStackCount) > 0)
                 UpdateRender();
-            }
 
             if (ItemStack.Item.GetCount(ItemStack) > 0)
                 goto Reset;
@@ -201,32 +201,34 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
             // was it clicked on another ui item?
             if (hover.TryGetComponent(out UIItemRenderer uiItem))
             {
-                if (uiItem.TransferStackTo(ItemStack, 1) > 0)
-                {
+                if (uiItem.CombineStack(ItemStack, 1) > 0)
                     UpdateRender();
-                }
                 goto Next;
             }
 
-            // was it clocked on an item slot?
+            // was it clicked on an item slot?
             if (hover.TryGetComponent(out ItemSlotUI slotUI))
             {
                 // is the ui item's slot blocked?
                 if (!slotUI.interactable)
                     goto Next;
 
+                // is item slot empty?
+                if (slotUI.GetItem() != null)
+                    goto Next;
+
                 if (ItemStack.Item.SplitStack(ItemStack, out ItemStack newStack, 1) > 0)
                 {
                     // can split stack for empty slot
                     slotUI.SetItem(newStack);
-                    slotUI.UpdateRender();
                 }
                 else
                 {
-                    slotUI.SetItem(ItemStack);
-                    ItemStack = null;
-                    slotUI.UpdateRender();
+                    if (ItemStack.Item.GetCount(ItemStack) > 0)
+                        slotUI.SetItem(ItemStack);
+                    ItemStack = null;    
                 }
+                slotUI.UpdateRender();
                 UpdateRender();
             }
 

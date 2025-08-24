@@ -5,6 +5,7 @@ public class Entry : MonoBehaviour
     public SimpleInventoryRenderer inventoryRenderer;
     public Item item;
     public bool[] bools = new bool[6];
+    public int[] ints = new int[6];
     private SimpleInventory inventory;
     void Start()
     {
@@ -22,7 +23,9 @@ public class Entry : MonoBehaviour
     {
         for (int i = 0; i < inventory.Length; ++i)
         {
-            bools[i] = inventory.GetItem(i) != null;
+            ItemStack stack = inventory.GetItem(i);
+            bools[i] = stack != null;
+            ints[i] = stack == null ? -1 : stack.Item.GetCount(stack);
         }
     }
 }
