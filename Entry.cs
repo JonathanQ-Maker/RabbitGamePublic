@@ -11,7 +11,9 @@ public class Entry : MonoBehaviour
         Application.targetFrameRate = 100;
         inventory = new SimpleInventory(6);
         inventory.SetItem(1, new ItemStack(item));
-        inventory.SetItem(0, new ItemStack(item));
+        ItemStack itemStack = new ItemStack(item);
+        item.SetCount(itemStack, 2);
+        inventory.SetItem(0, itemStack);
         inventoryRenderer.Inventory = inventory;
         inventoryRenderer.UpdateRender();
     }

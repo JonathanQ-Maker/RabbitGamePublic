@@ -29,7 +29,7 @@ public class ItemSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPo
         // TODO: render the item
         foreach (Transform child in itemHolder)
         {
-            Destroy(child);
+            Destroy(child.gameObject);
         }
 
         if (container == null) return;
@@ -41,13 +41,14 @@ public class ItemSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPo
             UIItemRenderer uiItem = Instantiate(uiItemPrefab, itemHolder);
             uiItem.ItemStack = itemInSlot;
             uiItem.UpdateRender();
-            MountItem(uiItem);
+            uiItem.parentSlot = this;
         }
     }
 
-    public bool MountItem(UIItemRenderer uiItem)
+    public bool TryMountItem(UIItemRenderer uiItem)
     {
         if (!interactable) return false;
+        if (GetItem() != null) return false;
 
         uiItem.parentSlot = this;
         SetItem(uiItem.ItemStack);

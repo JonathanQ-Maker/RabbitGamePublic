@@ -1,9 +1,9 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
 using static UnityEngine.EventSystems.PointerEventData;
 
 public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
@@ -38,7 +38,6 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
         }
     }
 
-    private GameObject currentHover;
 
 
 
@@ -84,7 +83,7 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
         if (!ItemStack.Item.CanCombine(ItemStack, other))
             return 0;
 
-        int amountTransferred = ItemStack.Item.TransferToStack(ItemStack, other, 1);
+        int amountTransferred = ItemStack.Item.TransferToStack(ItemStack, other, amountRequested);
         UpdateRender();
         return amountTransferred;
     }
@@ -122,7 +121,6 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
         if (eventData.button != InputButton.Left) return;
 
         // update current hover game object
-        currentHover = eventData.pointerEnter;
 
         if (parentSlot != null && !parentSlot.interactable) return;
         transform.position = eventData.position;
@@ -131,7 +129,6 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
     public void OnEndDrag(PointerEventData eventData)
     {
         if (eventData.button != InputButton.Left) return;
-        currentHover = null;
 
         // did we drop on something?
         if (eventData.pointerEnter == null)
@@ -144,7 +141,7 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
         if (eventData.pointerEnter.TryGetComponent(out ItemSlotUI slotUI))
         {
             // yup, but can item be mounted?
-            if (slotUI.MountItem(this))
+            if (slotUI.TryMountItem(this))
             {
                 // success
                 ResetPosition();
@@ -176,10 +173,11 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
 
 
     Reset:
-        if (!parentSlot.MountItem(this))
+        if (!parentSlot.TryMountItem(this))
         {
             // can't go back, drop myself
             // TODO: actually drop
+            Debug.Log("Item Dropped");
             Destroy(gameObject);
             return;
         }
@@ -194,23 +192,24 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
     {
         while (true)
         {
-            // did player cllick?
+            // did player click?
             if (!Input.GetMouseButtonDown(1)) goto Next;
 
-            if (currentHover == null) goto Next;
+            GameObject hover = GetCurrentUIUnderPointer();
+            if (hover == null) goto Next;
 
             // was it clicked on another ui item?
-            if (currentHover.TryGetComponent(out UIItemRenderer uiItem))
+            if (hover.TryGetComponent(out UIItemRenderer uiItem))
             {
                 if (uiItem.TransferStackTo(ItemStack, 1) > 0)
-                { 
+                {
                     UpdateRender();
                 }
                 goto Next;
             }
 
             // was it clocked on an item slot?
-            if (currentHover.TryGetComponent(out ItemSlotUI slotUI))
+            if (hover.TryGetComponent(out ItemSlotUI slotUI))
             {
                 // is the ui item's slot blocked?
                 if (!slotUI.interactable)
@@ -234,5 +233,18 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
             Next:
             yield return null;
         }
+    }
+
+    public static GameObject GetCurrentUIUnderPointer()
+    {
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        return results.Count > 0 ? results[0].gameObject : null;
     }
 }
