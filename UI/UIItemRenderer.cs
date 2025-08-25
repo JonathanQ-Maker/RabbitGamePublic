@@ -111,6 +111,7 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
     {
         toolTipInstance = Instantiate(toolTipPrefab, canvas.transform);
         toolTipInstance.Text = $"name: {ItemStack.Name}\nslot: {parentSlot.SlotIndex}";
+        toolTipInstance.Initalize(canvas);
     }
 
     public void OnPointerExit(PointerEventData eventData)

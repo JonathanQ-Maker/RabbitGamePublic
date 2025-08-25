@@ -20,20 +20,15 @@ public class ToolTipUI : MonoBehaviour
         }
     }
 
-    public bool Active
-    {
-        get { return gameObject.activeSelf; }
-        set
-        {
-            SetPosition(Input.mousePosition);
-            gameObject.SetActive(value);
-            //Cursor.visible = !gameObject.activeSelf;
-        }
+    public void Initalize(Canvas parentCanvas)
+    { 
+        canvas = parentCanvas;
+        UpdatePosition();
     }
 
-    private void SetPosition(Vector2 position)
+    private void UpdatePosition()
     {
-        rectTransform.position = position;
+        rectTransform.position = Input.mousePosition;
         UpdatePivot();
     }
 
@@ -63,12 +58,6 @@ public class ToolTipUI : MonoBehaviour
 
     private void Update()
     {
-        SetPosition(Input.mousePosition);
-    }
-
-    private void Start()
-    {
-        Canvas[] canvases = GetComponentsInParent<Canvas>();
-        canvas = canvases[canvases.Length - 1]; // topmost canvas
+        UpdatePosition();
     }
 }
