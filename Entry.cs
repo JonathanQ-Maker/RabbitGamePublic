@@ -13,7 +13,7 @@ public class Entry : MonoBehaviour
         inventory = new SimpleInventory(6);
         inventory.SetItem(1, new ItemStack(item));
         ItemStack itemStack = new ItemStack(item);
-        item.SetCount(itemStack, 2);
+        itemStack.Count = 2;
         inventory.SetItem(0, itemStack);
         inventoryRenderer.Inventory = inventory;
         inventoryRenderer.UpdateRender();
@@ -25,7 +25,7 @@ public class Entry : MonoBehaviour
         {
             ItemStack stack = inventory.GetItem(i);
             bools[i] = stack != null;
-            ints[i] = stack == null ? -1 : stack.Item.GetCount(stack);
+            ints[i] = stack == null ? -1 : stack.Count;
         }
     }
 }

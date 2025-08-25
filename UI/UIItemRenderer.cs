@@ -53,12 +53,12 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
 
     public void UpdateRender()
     {
-        if (ItemStack != null && ItemStack.Item.GetCount(ItemStack) > 0)
+        if (ItemStack != null && ItemStack.Count > 0)
         {
-            name = $"UIItemRenderer ({ItemStack.Item.GetName(ItemStack)})";
-            image.sprite = ItemStack.Item.Sprite;
+            name = $"UIItemRenderer ({ItemStack.Name})";
+            image.sprite = ItemStack.Sprite;
             countText.gameObject.SetActive(true);
-            countText.text = $"{ItemStack.Item.GetCount(ItemStack)}";
+            countText.text = $"{ItemStack.Count}";
             return;
         }
 
@@ -80,10 +80,10 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
             return 0;
 
         // can the two items combine?
-        if (!ItemStack.Item.CanCombine(ItemStack, other))
+        if (!ItemStack.CanCombine(other))
             return 0;
 
-        int amountTransferred = ItemStack.Item.CombineStack(ItemStack, other, amountRequested);
+        int amountTransferred = ItemStack.CombineStack(other, amountRequested);
 
         if (amountTransferred != 0)
             UpdateRender();
@@ -160,10 +160,10 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
         if (eventData.pointerEnter.TryGetComponent(out UIItemRenderer uiItem))
         {
             // yup, try to combine
-            if (uiItem.CombineStack(ItemStack, ItemStack.Item.MaxStackCount) > 0)
+            if (uiItem.CombineStack(ItemStack, ItemStack.MaxStackCount) > 0)
                 UpdateRender();
 
-            if (ItemStack.Item.GetCount(ItemStack) > 0)
+            if (ItemStack.Count > 0)
                 goto Reset;
 
             // nothing left in stack, wait to be destroyed
@@ -217,14 +217,14 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
                 if (slotUI.GetItem() != null)
                     goto Next;
 
-                if (ItemStack.Item.SplitStack(ItemStack, out ItemStack newStack, 1) > 0)
+                if (ItemStack.SplitStack(out ItemStack newStack, 1) > 0)
                 {
                     // can split stack for empty slot
                     slotUI.SetItem(newStack);
                 }
                 else
                 {
-                    if (ItemStack.Item.GetCount(ItemStack) > 0)
+                    if (ItemStack.Count > 0)
                         slotUI.SetItem(ItemStack);
                     ItemStack = null;    
                 }

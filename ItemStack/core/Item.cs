@@ -45,8 +45,8 @@ public class Item : ScriptableObject
 
     public virtual void Initalize(ItemStack itemStack)
     {
-        SetName(itemStack, name);
-        SetCount(itemStack, 1);
+        itemStack.Name = name;
+        itemStack.Count = 1;
     }
 
 
@@ -58,29 +58,29 @@ public class Item : ScriptableObject
 
         if (!ReferenceEquals(itemStack.Item, other.Item)) return false;
 
-        if (GetCount(itemStack) + GetCount(other) > MaxStackCount)
+        if (itemStack.Count + other.Count > MaxStackCount)
             return false;
 
-        if (!GetName(itemStack).Equals(GetName(other))) return false;
+        if (!itemStack.Name.Equals(other.Name)) return false;
 
         return true;
     }
 
     public virtual int CombineStack(ItemStack itemStack, ItemStack from, int amountRequested)
     {
-        if (!CanCombine(itemStack, from)) return 0;
+        if (!itemStack.CanCombine(from)) return 0;
 
-        int amountTransferred = Mathf.Min(amountRequested, MaxStackCount - GetCount(itemStack), GetCount(from));
+        int amountTransferred = Mathf.Min(amountRequested, MaxStackCount - itemStack.Count, from.Count);
         amountTransferred = Mathf.Max(amountTransferred, 0);
-        SetCount(itemStack, GetCount(itemStack) + amountTransferred);
-        SetCount(from, GetCount(from) - amountTransferred);
+        itemStack.Count = itemStack.Count + amountTransferred;
+        from.Count = from.Count - amountTransferred;
 
         return amountTransferred;
     }
 
     public virtual int SplitStack(ItemStack itemStack, out ItemStack newStack, int amountRequested)
     {
-        int amountSplit = Mathf.Min(amountRequested, GetCount(itemStack) - 1, MaxStackCount);
+        int amountSplit = Mathf.Min(amountRequested, itemStack.Count - 1, MaxStackCount);
         amountSplit = Mathf.Max(amountSplit, 0);
 
         if (amountSplit == 0)
@@ -90,8 +90,8 @@ public class Item : ScriptableObject
         }
 
         newStack = new ItemStack(itemStack);
-        SetCount(itemStack, GetCount(itemStack) - amountSplit);
-        SetCount(newStack, amountSplit);
+        itemStack.Count = itemStack.Count - amountSplit;
+        newStack.Count = amountSplit;
         return amountSplit;
     }
 }
