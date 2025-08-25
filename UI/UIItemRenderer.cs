@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using static UnityEngine.EventSystems.PointerEventData;
 
-public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
+public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     private ItemStack itemStack;
     public ItemStack ItemStack
@@ -22,6 +22,10 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
 
     [SerializeField]
     private TextMeshProUGUI countText;
+
+    [SerializeField]
+    private ToolTipUI toolTipPrefab;
+    private ToolTipUI toolTipInstance;
 
 
     private IEnumerator actionLoop;
@@ -103,8 +107,16 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
 
 
 
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        toolTipInstance = Instantiate(toolTipPrefab, canvas.transform);
+        toolTipInstance.Text = $"name: {ItemStack.Name}\nslot: {parentSlot.SlotIndex}";
+    }
 
-
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        Destroy(toolTipInstance.gameObject);
+    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
