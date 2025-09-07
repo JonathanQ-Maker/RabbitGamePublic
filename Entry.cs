@@ -4,13 +4,11 @@ public class Entry : MonoBehaviour
 {
     public SimpleInventoryRenderer inventoryRenderer;
     public Item item;
-    public bool[] bools = new bool[6];
-    public int[] ints = new int[6];
     private SimpleInventory inventory;
     void Start()
     {
         Application.targetFrameRate = 100;
-        inventory = new SimpleInventory(6);
+        inventory = new SimpleInventory(30);
         inventory.SetItem(1, new ItemStack(item));
         ItemStack itemStack = new ItemStack(item);
         itemStack.Count = 2;
@@ -21,11 +19,6 @@ public class Entry : MonoBehaviour
 
     private void Update()
     {
-        for (int i = 0; i < inventory.Length; ++i)
-        {
-            ItemStack stack = inventory.GetItem(i);
-            bools[i] = stack != null;
-            ints[i] = stack == null ? -1 : stack.Count;
-        }
+
     }
 }

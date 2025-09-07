@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ToolTipUI : MonoBehaviour
 {
+    public Vector2 offset;
     [SerializeField]
     private TextMeshProUGUI toolTip;
     private Canvas canvas;
@@ -28,32 +29,7 @@ public class ToolTipUI : MonoBehaviour
 
     private void UpdatePosition()
     {
-        rectTransform.position = Input.mousePosition;
-        UpdatePivot();
-    }
-
-    private void UpdatePivot()
-    {
-        Vector2 topRight = rectTransform.anchoredPosition + rectTransform.sizeDelta;
-        Vector2 currentPivot = rectTransform.pivot;
-        if (topRight.x > Screen.width / canvas.scaleFactor)
-        {
-            currentPivot.x = 1;
-        }
-        else
-        {
-            currentPivot.x = 0;
-        }
-
-        if (topRight.y > Screen.height / canvas.scaleFactor)
-        {
-            currentPivot.y = 1;
-        }
-        else
-        {
-            currentPivot.y = 0;
-        }
-        rectTransform.pivot = currentPivot;
+        rectTransform.position = Input.mousePosition + new Vector3(offset.x, offset.y);
     }
 
     private void Update()
