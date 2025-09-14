@@ -70,6 +70,11 @@ public class Character : MonoBehaviour, IJsonSerializable
 
     private ColliderInformer colliderInformer;
 
+    private delegate void OnOpenSimpleInv(ISimpleContainer container);
+
+    private OnOpenSimpleInv onOpenSimpleInv;
+
+
     private void Awake()
     {
         colliderInformer = new ColliderInformer(new Vector3(0.75f, 1.5f, 0.75f), 65);
@@ -95,13 +100,24 @@ public class Character : MonoBehaviour, IJsonSerializable
         ActionLoop = RigidBodyMover.LookAt(rb, target);
     }
 
-    public void StartUse(IUsable usable)
+    public void StartUse(IWorldUsable usable)
     {
         GetPath(usable.Position, (PathResult result) => {
             pathDebug.Result = result;
             if (result.Length > 0)
             {
                 ActionLoop = Use(result.Path, usable);
+            }
+        });
+    }
+
+    public void StartOpenContainer(ISimpleContainer container)
+    {
+        GetPath(container.Position, (PathResult result) => {
+            pathDebug.Result = result;
+            if (result.Length > 0)
+            {
+                ActionLoop = OpenContainer(result.Path, container);
             }
         });
     }
@@ -149,6 +165,16 @@ public class Character : MonoBehaviour, IJsonSerializable
         
     }
 
+    public void Subscribe(ICharacterController controller) 
+    {
+        onOpenSimpleInv += controller.OnOpenSimpleInv;
+    }
+
+    public void Unsubscribe(ICharacterController controller)
+    {
+        onOpenSimpleInv -= controller.OnOpenSimpleInv;
+    }
+
 
 
 
@@ -175,7 +201,7 @@ public class Character : MonoBehaviour, IJsonSerializable
         animator.SetTrigger("Idle");
     }
 
-    private IEnumerator Use(Vector3[] path, IUsable target)
+    private IEnumerator Use(Vector3[] path, IWorldUsable target)
     {
         if (Vector3.Distance(target.Position, transform.position) > 1.5f)
             yield return TraversePath(path, false);
@@ -189,6 +215,24 @@ public class Character : MonoBehaviour, IJsonSerializable
         {
             SetTrigger("Use");
             target.Use();
+        }
+    }
+
+    private IEnumerator OpenContainer(Vector3[] path, ISimpleContainer target)
+    {
+        if (Vector3.Distance(target.Position, transform.position) > 1.5f)
+            yield return TraversePath(path, false);
+
+        if (CheckDestroyed(target)) yield break;
+
+        yield return RigidBodyMover.LookAt(rb, target.Position);
+
+        if (CheckDestroyed(target)) yield break;
+        if (Vector3.Distance(target.Position, transform.position) < 2f)
+        {
+            SetTrigger("Use");
+            target.OnOpenSimpleInv(this);
+            onOpenSimpleInv?.Invoke(target);
         }
     }
 

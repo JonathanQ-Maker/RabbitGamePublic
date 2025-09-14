@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public interface IUsable
+public interface IWorldUsable
 {
     Vector3 Position { get; }
 

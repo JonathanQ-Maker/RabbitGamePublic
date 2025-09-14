@@ -8,6 +8,7 @@ public class Entry : MonoBehaviour
     void Start()
     {
         Application.targetFrameRate = 100;
+        return;
         inventory = new SimpleInventory(30);
         inventory.SetItem(1, new ItemStack(item));
         ItemStack itemStack = new ItemStack(item);

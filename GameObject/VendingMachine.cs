@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class VendingMachine : MonoBehaviour, IUsable
+public class VendingMachine : MonoBehaviour, IWorldUsable
 {
     public Vector3 Position => transform.position;
 
