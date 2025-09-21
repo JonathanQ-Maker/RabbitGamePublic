@@ -27,20 +27,25 @@ public class PlayerController : MonoBehaviour, ICharacterController
 
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, selectMask))
         {
+            if (!ReferenceEquals(character.OpenedObject, null)) 
+            { 
+                character.CloseContainer();
+            }
+
             if (character.Mounted)
             { 
                 character.DisMount();
             }
 
-            if (hit.collider.TryGetComponent(out IWorldUsable usable))
+            if (hit.collider.TryGetComponent(out IUsable usable))
             {
                 character.StartUse(usable);
                 return;
             }
 
-            if (hit.collider.TryGetComponent(out ISimpleContainer container))
+            if (hit.collider.TryGetComponent(out IOpenable container))
             {
-                character.StartOpenContainer(container);
+                character.StartOpen(container);
                 return;
             }
 
@@ -54,10 +59,20 @@ public class PlayerController : MonoBehaviour, ICharacterController
         }
     }
 
-    public void OnOpenSimpleInv(ISimpleContainer container)
+    public void OnOpen(object result)
     {
-        simpleInvRenderer.Inventory = container.SimpleInv;
+        if (result is SimpleInventory inventory)
+        {
+            simpleInvRenderer.Inventory = inventory;
+            simpleInvRenderer.UpdateRender();
+            simpleInvRenderer.gameObject.SetActive(true);
+        }
+    }
+
+    public void OnClose()
+    {
+        simpleInvRenderer.Inventory = null;
         simpleInvRenderer.UpdateRender();
-        simpleInvRenderer.gameObject.SetActive(true);
+        simpleInvRenderer.gameObject.SetActive(false);
     }
 }

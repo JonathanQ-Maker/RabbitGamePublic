@@ -1,4 +1,5 @@
 ﻿public interface ICharacterController
 {
-    void OnOpenSimpleInv(ISimpleContainer container);
+    void OnOpen(object result);
+    void OnClose();
 }

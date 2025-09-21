@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Cabin : MonoBehaviour, ISimpleContainer
+public class Cabin : MonoBehaviour, IOpenable
 {
     public Vector3 Position => transform.position;
 
@@ -16,12 +16,13 @@ public class Cabin : MonoBehaviour, ISimpleContainer
         inventory = new SimpleInventory(30);
     }
 
-    public void OnOpenSimpleInv(object source)
+    public object Open(object source)
     {
         animator.SetTrigger("Open");
+        return inventory;
     }
 
-    public void OnCloseSimpleInv(object source)
+    public void Close()
     {
         animator.SetTrigger("Close");
     }

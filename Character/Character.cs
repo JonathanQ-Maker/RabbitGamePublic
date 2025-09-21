@@ -70,9 +70,13 @@ public class Character : MonoBehaviour, IJsonSerializable
 
     private ColliderInformer colliderInformer;
 
-    private delegate void OnOpenSimpleInv(ISimpleContainer container);
+    private delegate void OnOpen(object result);
+    private delegate void OnClose();
 
-    private OnOpenSimpleInv onOpenSimpleInv;
+    private IOpenable openedObject;
+    public object OpenedObject => openedObject;
+    private OnOpen onOpenObject;
+    private OnClose onCloseObject;
 
 
     private void Awake()
@@ -100,26 +104,38 @@ public class Character : MonoBehaviour, IJsonSerializable
         ActionLoop = RigidBodyMover.LookAt(rb, target);
     }
 
-    public void StartUse(IWorldUsable usable)
+    public void StartUse(IUsable usable)
     {
-        GetPath(usable.Position, (PathResult result) => {
-            pathDebug.Result = result;
-            if (result.Length > 0)
-            {
-                ActionLoop = Use(result.Path, usable);
-            }
-        });
+        if (usable is Component component)
+        { 
+            GetPath(component.transform.position, (PathResult result) => {
+                pathDebug.Result = result;
+                if (result.Length > 0)
+                {
+                    ActionLoop = UseAt(result.Path, component.transform, usable);
+                }
+            });
+            return;
+        }
+        
+        usable.Use();
     }
 
-    public void StartOpenContainer(ISimpleContainer container)
+    public void StartOpen(IOpenable openable)
     {
-        GetPath(container.Position, (PathResult result) => {
-            pathDebug.Result = result;
-            if (result.Length > 0)
-            {
-                ActionLoop = OpenContainer(result.Path, container);
-            }
-        });
+        if (openable is Component component)
+        { 
+            GetPath(component.transform.position, (PathResult result) => {
+                pathDebug.Result = result;
+                if (result.Length > 0)
+                {
+                    ActionLoop = OpenAt(result.Path, component.transform, openable);
+                }
+            });
+            return;
+        }
+
+        onOpenObject?.Invoke(openable.Open(this));
     }
 
     public void StartMount(IMountable mountable)
@@ -141,6 +157,16 @@ public class Character : MonoBehaviour, IJsonSerializable
             mount = null;
             rb.isKinematic = false;
             SetTrigger("Idle");
+        }
+    }
+
+    public void CloseContainer()
+    {
+        if (!ReferenceEquals(OpenedObject, null)) 
+        {
+            openedObject.Close();
+            openedObject = null;
+            onCloseObject?.Invoke();
         }
     }
 
@@ -167,12 +193,14 @@ public class Character : MonoBehaviour, IJsonSerializable
 
     public void Subscribe(ICharacterController controller) 
     {
-        onOpenSimpleInv += controller.OnOpenSimpleInv;
+        onOpenObject += controller.OnOpen;
+        onCloseObject += controller.OnClose;
     }
 
     public void Unsubscribe(ICharacterController controller)
     {
-        onOpenSimpleInv -= controller.OnOpenSimpleInv;
+        onOpenObject -= controller.OnOpen;
+        onCloseObject -= controller.OnClose;
     }
 
 
@@ -201,38 +229,38 @@ public class Character : MonoBehaviour, IJsonSerializable
         animator.SetTrigger("Idle");
     }
 
-    private IEnumerator Use(Vector3[] path, IWorldUsable target)
+    private IEnumerator UseAt(Vector3[] path, Transform at, IUsable target)
     {
-        if (Vector3.Distance(target.Position, transform.position) > 1.5f)
+        if (Vector3.Distance(at.position, transform.position) > 1.5f)
             yield return TraversePath(path, false);
 
-        if (CheckDestroyed(target)) yield break;
+        if (CheckDestroyed(at)) yield break;
 
-        yield return RigidBodyMover.LookAt(rb, target.Position);
+        yield return RigidBodyMover.LookAt(rb, at.position);
 
-        if (CheckDestroyed(target)) yield break;
-        if (Vector3.Distance(target.Position, transform.position) < 2f)
+        if (CheckDestroyed(at)) yield break;
+        if (Vector3.Distance(at.position, transform.position) < 2f)
         {
             SetTrigger("Use");
             target.Use();
         }
     }
 
-    private IEnumerator OpenContainer(Vector3[] path, ISimpleContainer target)
+    private IEnumerator OpenAt(Vector3[] path, Transform at, IOpenable target)
     {
-        if (Vector3.Distance(target.Position, transform.position) > 1.5f)
+        if (Vector3.Distance(at.position, transform.position) > 1.5f)
             yield return TraversePath(path, false);
 
-        if (CheckDestroyed(target)) yield break;
+        if (CheckDestroyed(at)) yield break;
 
-        yield return RigidBodyMover.LookAt(rb, target.Position);
+        yield return RigidBodyMover.LookAt(rb, at.position);
 
-        if (CheckDestroyed(target)) yield break;
-        if (Vector3.Distance(target.Position, transform.position) < 2f)
+        if (CheckDestroyed(at)) yield break;
+        if (Vector3.Distance(at.position, transform.position) < 2f)
         {
             SetTrigger("Use");
-            target.OnOpenSimpleInv(this);
-            onOpenSimpleInv?.Invoke(target);
+            onOpenObject?.Invoke(target.Open(this));
+            openedObject = target;
         }
     }
 
