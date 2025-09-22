@@ -2,7 +2,7 @@
 
 public class LineDrawerer : MonoBehaviour
 {
-
+    public Material lineMaterial;
     private int instanceId;
     private Mesh mesh;
     private Vector3 position;
@@ -106,6 +106,6 @@ public class LineDrawerer : MonoBehaviour
     private void Update()
     {
         if (mesh != null)
-            Graphics.DrawMesh(mesh, position, quaternion, null, 0);
+            Graphics.DrawMesh(mesh, position, quaternion, lineMaterial, 0);
     }
 }
