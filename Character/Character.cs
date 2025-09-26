@@ -78,10 +78,14 @@ public class Character : MonoBehaviour, IJsonSerializable
     private OnOpen onOpenObject;
     private OnClose onCloseObject;
 
+    private SimpleInventory inventory;
+    public SimpleInventory Inventory { get { return inventory; } }
+
 
     private void Awake()
     {
         colliderInformer = new ColliderInformer(new Vector3(0.75f, 1.5f, 0.75f), 65);
+        inventory = new SimpleInventory(50);
     }
 
     /////////////////////////////////////////
@@ -145,6 +149,17 @@ public class Character : MonoBehaviour, IJsonSerializable
             if (result.Length > 0)
             {
                 ActionLoop = Mount(result.Path, mountable);
+            }
+        });
+    }
+
+    public void StartGetItem(WorldItemRenderer worldItem) 
+    {
+        GetPath(worldItem.transform.position, (PathResult result) => {
+            pathDebug.Result = result;
+            if (result.Length > 0)
+            {
+                ActionLoop = GetItem(result.Path, worldItem);
             }
         });
     }
@@ -261,6 +276,27 @@ public class Character : MonoBehaviour, IJsonSerializable
             SetTrigger("Use");
             onOpenObject?.Invoke(target.Open(this));
             openedObject = target;
+        }
+    }
+
+    private IEnumerator GetItem(Vector3[] path, WorldItemRenderer worldItem)
+    {
+        if (Vector3.Distance(worldItem.transform.position, transform.position) > 1.5f)
+            yield return TraversePath(path, false);
+
+        if (CheckDestroyed(worldItem)) yield break;
+
+        yield return RigidBodyMover.LookAt(rb, worldItem.transform.position);
+
+        if (CheckDestroyed(worldItem)) yield break;
+        if (Vector3.Distance(worldItem.transform.position, transform.position) < 2f)
+        {
+            SetTrigger("Use");
+            // TODO: Pickup item
+            if (worldItem.ItemStack.Count == inventory.AddItem(worldItem.ItemStack))
+            {
+                Destroy(worldItem.gameObject);
+            }
         }
     }
 

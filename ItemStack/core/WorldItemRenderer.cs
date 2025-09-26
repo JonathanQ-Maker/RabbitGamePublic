@@ -2,6 +2,8 @@
 
 public class WorldItemRenderer : MonoBehaviour
 {
+    [SerializeField]
+    private Item template;
     private ItemStack itemStack;
     public ItemStack ItemStack 
     {
@@ -12,5 +14,11 @@ public class WorldItemRenderer : MonoBehaviour
 
 
 
-
+    private void Start()
+    {
+        if (ItemStack == null) {
+            // renderer exists but no item, create from template
+            ItemStack = new ItemStack(template);
+        }
+    }
 }

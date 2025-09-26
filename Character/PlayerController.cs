@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour, ICharacterController
     {
         HandleClick();
         HandleHover();
+        HandleKey();
     }
 
     private void HandleClick()
@@ -37,6 +38,12 @@ public class PlayerController : MonoBehaviour, ICharacterController
             if (character.Mounted)
             { 
                 character.DisMount();
+            }
+
+            if (hit.collider.TryGetComponent(out WorldItemRenderer worldItem))
+            {
+                character.StartGetItem(worldItem);
+                return;
             }
 
             if (hit.collider.TryGetComponent(out IUsable usable))
@@ -70,6 +77,25 @@ public class PlayerController : MonoBehaviour, ICharacterController
             return;
         }
         lineDrawerer.UpdateBounds(null);
+    }
+
+    private void HandleKey() 
+    {
+        if (Input.GetKeyDown(KeyCode.E)) 
+        {
+            if (!simpleInvRenderer.gameObject.activeSelf)
+            {
+                simpleInvRenderer.Inventory = character.Inventory;
+                simpleInvRenderer.UpdateRender();
+                simpleInvRenderer.gameObject.SetActive(true);
+            } 
+            else 
+            {
+                simpleInvRenderer.Inventory = null;
+                simpleInvRenderer.UpdateRender();
+                simpleInvRenderer.gameObject.SetActive(false);
+            }
+        }
     }
 
     public void OnOpen(object result)

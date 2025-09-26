@@ -12,12 +12,15 @@ public static class RigidBodyMover
         if (delta.sqrMagnitude < 0.1f) yield break;
 
         float angle = Mathf.Atan2(delta.x, delta.z) * Mathf.Rad2Deg;
+        int i = 0;
         while (delta.sqrMagnitude > 0.01f || (Mathf.Abs(Mathf.DeltaAngle(angle, rigidbody.transform.eulerAngles.y)) > 10f))
         {
+            if (i >= 2000) break;
             Vector3 position = Vector3.SmoothDamp(rigidbody.transform.position, targetPos, ref velocity, 0.1f, maxSpeed);
             Quaternion rotation = Quaternion.Euler(0, Mathf.SmoothDampAngle(rigidbody.transform.eulerAngles.y, angle, ref angleVelocity, 0.1f), 0);
             rigidbody.Move(position, rotation);
             delta = targetPos - rigidbody.transform.position;
+            i++;
             yield return new WaitForFixedUpdate();
         }
     }

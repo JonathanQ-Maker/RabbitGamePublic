@@ -66,4 +66,9 @@ public class ItemStack
     {
         return Item.SplitStack(this, out newStack,amountRequested);
     }
+
+    public override string ToString()
+    {
+        return data.ToString();
+    }
 }
