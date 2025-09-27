@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CameraController : MonoBehaviour
 {
@@ -103,6 +104,8 @@ public class CameraController : MonoBehaviour
 
     private void HandleMovement()
     {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
         // Drag code from https://youtu.be/rnqF6S7PfFA?t=756
 
         if (Input.GetMouseButtonDown(1))
@@ -131,6 +134,9 @@ public class CameraController : MonoBehaviour
 
     private void HandleScroll()
     {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
+
         if (Input.mouseScrollDelta.y != 0)
         {
             Vector2 view = attachedCamera.ScreenToViewportPoint(Input.mousePosition);

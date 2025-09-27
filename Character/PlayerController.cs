@@ -1,11 +1,18 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour, ICharacterController
 {
     private int selectMask = 9;
     public Character character;
-    public SimpleInventoryRenderer simpleInvRenderer;
-    public LineDrawerer lineDrawerer;
+
+    [SerializeField]
+    private SimpleInventoryRenderer simpleInvRenderer;
+    [SerializeField]
+    private Image background;
+    [SerializeField]
+    private LineDrawerer lineDrawerer;
 
     private void Start()
     {
@@ -23,6 +30,8 @@ public class PlayerController : MonoBehaviour, ICharacterController
     {
         if (!Input.GetMouseButtonDown(0)) return;
         if (character == null) return;
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
 
         // left clicked
 
@@ -70,6 +79,12 @@ public class PlayerController : MonoBehaviour, ICharacterController
     private void HandleHover() 
     {
         if (character == null) return;
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            lineDrawerer.UpdateBounds(null);
+            return;
+        }
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, selectMask))
         {
@@ -85,15 +100,11 @@ public class PlayerController : MonoBehaviour, ICharacterController
         {
             if (!simpleInvRenderer.gameObject.activeSelf)
             {
-                simpleInvRenderer.Inventory = character.Inventory;
-                simpleInvRenderer.UpdateRender();
-                simpleInvRenderer.gameObject.SetActive(true);
+                OpenSimpleInv(character.Inventory);
             } 
             else 
             {
-                simpleInvRenderer.Inventory = null;
-                simpleInvRenderer.UpdateRender();
-                simpleInvRenderer.gameObject.SetActive(false);
+                CloseSimpleInv();
             }
         }
     }
@@ -102,16 +113,28 @@ public class PlayerController : MonoBehaviour, ICharacterController
     {
         if (result is SimpleInventory inventory)
         {
-            simpleInvRenderer.Inventory = inventory;
-            simpleInvRenderer.UpdateRender();
-            simpleInvRenderer.gameObject.SetActive(true);
+            OpenSimpleInv(inventory);
         }
     }
 
     public void OnClose()
     {
+        CloseSimpleInv();
+    }
+
+    private void OpenSimpleInv(SimpleInventory inventory) 
+    {
+        simpleInvRenderer.Inventory = inventory;
+        simpleInvRenderer.UpdateRender();
+        simpleInvRenderer.gameObject.SetActive(true);
+        background.gameObject.SetActive(true);
+    }
+
+    private void CloseSimpleInv()
+    {
         simpleInvRenderer.Inventory = null;
         simpleInvRenderer.UpdateRender();
         simpleInvRenderer.gameObject.SetActive(false);
+        background.gameObject.SetActive(false);
     }
 }

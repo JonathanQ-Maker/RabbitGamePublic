@@ -58,7 +58,8 @@ public class ItemSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPo
     }
 
     public void OnDismountItem()
-    { 
+    {
+        overlay.enabled = false;
         SetItem(null);
     }
 
