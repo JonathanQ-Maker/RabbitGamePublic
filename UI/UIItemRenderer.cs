@@ -116,13 +116,20 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        Destroy(toolTipInstance.gameObject);
+        if (toolTipInstance != null)
+            Destroy(toolTipInstance.gameObject);
+        toolTipInstance = null;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (eventData.button != InputButton.Left) return;
         if (parentSlot != null && !parentSlot.interactable) return;
+
+        if (toolTipInstance != null)
+            Destroy(toolTipInstance.gameObject);
+        toolTipInstance = null;
+
         parentSlot.OnDismountItem();
 
         transform.SetParent(canvas.transform);
