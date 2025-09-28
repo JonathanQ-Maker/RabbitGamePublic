@@ -109,16 +109,12 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        toolTipInstance = Instantiate(toolTipPrefab, canvas.transform);
-        toolTipInstance.Text = $"name: {ItemStack.Name}\nslot: {parentSlot.SlotIndex}";
-        toolTipInstance.Initalize(canvas);
+        ShowToolTip();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (toolTipInstance != null)
-            Destroy(toolTipInstance.gameObject);
-        toolTipInstance = null;
+        HideToolTip();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -205,6 +201,11 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
         image.raycastTarget = true;
     }
 
+    private void OnDisable()
+    {
+        HideToolTip();
+    }
+
 
 
 
@@ -255,6 +256,20 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
             Next:
             yield return null;
         }
+    }
+
+    private void ShowToolTip()
+    {
+        toolTipInstance = Instantiate(toolTipPrefab, canvas.transform);
+        toolTipInstance.Text = $"name: {ItemStack.Name}\nslot: {parentSlot.SlotIndex}";
+        toolTipInstance.Initalize(canvas);
+    }
+
+    private void HideToolTip()
+    {
+        if (toolTipInstance != null)
+            Destroy(toolTipInstance.gameObject);
+        toolTipInstance = null;
     }
 
     public static GameObject GetCurrentUIUnderPointer()
