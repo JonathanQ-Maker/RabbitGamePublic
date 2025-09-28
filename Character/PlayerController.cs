@@ -8,7 +8,9 @@ public class PlayerController : MonoBehaviour, ICharacterController
     public Character character;
 
     [SerializeField]
-    private SimpleInventoryRenderer simpleInvRenderer;
+    private SimpleInventoryRenderer otherInv;
+    [SerializeField]
+    private SimpleInventoryRenderer characterInv;
     [SerializeField]
     private Image background;
     [SerializeField]
@@ -98,14 +100,13 @@ public class PlayerController : MonoBehaviour, ICharacterController
     {
         if (Input.GetKeyDown(KeyCode.E)) 
         {
-            if (!simpleInvRenderer.gameObject.activeSelf)
-            {
-                OpenSimpleInv(character.Inventory);
-            } 
-            else 
+            if (otherInv.gameObject.activeSelf || characterInv.gameObject.activeSelf)
             {
                 CloseSimpleInv();
+                return;
             }
+
+            OpenSimpleInv(null);
         }
     }
 
@@ -124,17 +125,27 @@ public class PlayerController : MonoBehaviour, ICharacterController
 
     private void OpenSimpleInv(SimpleInventory inventory) 
     {
-        simpleInvRenderer.Inventory = inventory;
-        simpleInvRenderer.UpdateRender();
-        simpleInvRenderer.gameObject.SetActive(true);
+        if (inventory != null) { 
+            otherInv.Inventory = inventory;
+            otherInv.UpdateRender();
+            otherInv.gameObject.SetActive(true);
+        }
+        characterInv.Inventory = character.Inventory;
+        characterInv.UpdateRender();
+        characterInv.gameObject.SetActive(true);
         background.gameObject.SetActive(true);
     }
 
     private void CloseSimpleInv()
     {
-        simpleInvRenderer.Inventory = null;
-        simpleInvRenderer.UpdateRender();
-        simpleInvRenderer.gameObject.SetActive(false);
+        otherInv.Inventory = null;
+        otherInv.UpdateRender();
+        otherInv.gameObject.SetActive(false);
+
+        characterInv.Inventory = null;
+        characterInv.UpdateRender();
+        characterInv.gameObject.SetActive(false);
+
         background.gameObject.SetActive(false);
     }
 }

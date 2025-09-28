@@ -85,7 +85,7 @@ public class Character : MonoBehaviour, IJsonSerializable
     private void Awake()
     {
         colliderInformer = new ColliderInformer(new Vector3(0.75f, 1.5f, 0.75f), 65);
-        inventory = new SimpleInventory(50);
+        inventory = new SimpleInventory(25);
     }
 
     /////////////////////////////////////////
