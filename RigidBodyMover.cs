@@ -15,7 +15,7 @@ public static class RigidBodyMover
         int i = 0;
         while (delta.sqrMagnitude > 0.01f || (Mathf.Abs(Mathf.DeltaAngle(angle, rigidbody.transform.eulerAngles.y)) > 10f))
         {
-            if (i >= 2000) break;
+            if (i >= 200) break;
             Vector3 position = Vector3.SmoothDamp(rigidbody.transform.position, targetPos, ref velocity, 0.1f, maxSpeed);
             Quaternion rotation = Quaternion.Euler(0, Mathf.SmoothDampAngle(rigidbody.transform.eulerAngles.y, angle, ref angleVelocity, 0.1f), 0);
             rigidbody.Move(position, rotation);
