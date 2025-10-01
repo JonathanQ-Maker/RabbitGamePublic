@@ -50,7 +50,7 @@ public class Item : ScriptableObject
     }
 
 
-    public virtual bool CanCombine(ItemStack itemStack, ItemStack other)
+    public virtual bool IsSimilar(ItemStack itemStack, ItemStack other)
     {
         if (itemStack == null || other == null) return false;
 
@@ -58,8 +58,6 @@ public class Item : ScriptableObject
 
         if (!ReferenceEquals(itemStack.Item, other.Item)) return false;
 
-        if (itemStack.Count + other.Count > MaxStackCount)
-            return false;
 
         if (!itemStack.Name.Equals(other.Name)) return false;
 
@@ -68,7 +66,7 @@ public class Item : ScriptableObject
 
     public virtual int CombineStack(ItemStack itemStack, ItemStack from, int amountRequested)
     {
-        if (!itemStack.CanCombine(from)) return 0;
+        if (!itemStack.IsSimilar(from)) return 0;
 
         int amountTransferred = Mathf.Min(amountRequested, MaxStackCount - itemStack.Count, from.Count);
         amountTransferred = Mathf.Max(amountTransferred, 0);

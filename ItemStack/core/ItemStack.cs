@@ -52,9 +52,9 @@ public class ItemStack
 
 
 
-    public bool CanCombine(ItemStack other)
+    public bool IsSimilar(ItemStack other)
     {
-        return Item.CanCombine(this, other);
+        return Item.IsSimilar(this, other);
     }
 
     public int CombineStack(ItemStack from, int amountRequested)

@@ -23,21 +23,26 @@ public class SimpleInventory : IItemContainer
         items[index] = itemStack;
     }
 
-    public int AddItem(ItemStack itemStack) 
+    public int AddItem(ItemStack itemStack)
     {
         int countAdded = 0;
-        for (int i = 0; i < Length && itemStack.Count > 0; i++) 
+        int openSlot = -1;
+        for (int i = 0; i < Length && itemStack.Count > 0; i++)
         {
             ItemStack itemAtSlot = items[i];
-            if (itemAtSlot == null) 
+            if (itemAtSlot == null)
             {
-                SetItem(i, itemStack);
-                return itemStack.Count;
+                if (openSlot < 0) openSlot = i;
             }
-            else
-            {
+            else 
+            { 
                 countAdded += itemAtSlot.CombineStack(itemStack, itemStack.Count);
             }
+        }
+
+        if (itemStack.Count != 0 && openSlot >= 0) {
+            SetItem(openSlot, itemStack);
+            countAdded += itemStack.Count;
         }
         return countAdded;
     }

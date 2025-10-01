@@ -84,7 +84,7 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
             return 0;
 
         // can the two items combine?
-        if (!ItemStack.CanCombine(other))
+        if (!ItemStack.IsSimilar(other))
             return 0;
 
         int amountTransferred = ItemStack.CombineStack(other, amountRequested);
