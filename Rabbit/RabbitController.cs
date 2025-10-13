@@ -14,7 +14,7 @@ public class RabbitController : MonoBehaviour
     {
         while (true) 
         { 
-            target.StartMoveTo(new Vector3(Random.Range(0, -6.5f), 0, Random.Range(0, -6.5f)));
+            //target.StartMoveTo(new Vector3(Random.Range(0, -6.5f), 0, Random.Range(0, -6.5f)));
             yield return new WaitForSeconds(5f);
         }
     }

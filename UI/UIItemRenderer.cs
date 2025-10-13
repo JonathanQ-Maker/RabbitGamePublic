@@ -148,6 +148,7 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
     {
         ActionLoop = null;
         if (eventData.button != InputButton.Left) return;
+        if (parentSlot != null && !parentSlot.interactable) return;
 
         // did we drop on something?
         if (eventData.pointerEnter == null)
@@ -189,7 +190,7 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
 
 
     Reset:
-        if (!parentSlot.TryMountItem(this))
+        if (parentSlot == null || !parentSlot.TryMountItem(this))
         {
             // can't go back, drop myself
             // TODO: actually drop
