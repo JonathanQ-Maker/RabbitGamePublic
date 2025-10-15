@@ -8,8 +8,14 @@ public class ItemSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPo
     public int SlotIndex { get { return slotIndex; } }
     private IItemContainer container;
     public bool interactable;
+    public bool Background 
+    {
+        get { return background.activeSelf; }
+        set { background.SetActive(value); }
+    }
 
-
+    [SerializeField]
+    private GameObject background;
     [SerializeField]
     private UIItemRenderer uiItemPrefab;
     [SerializeField]
@@ -35,7 +41,7 @@ public class ItemSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPo
         }
 
         if (container == null) return;
-        if (slotIndex < 0 || slotIndex >= container.Length) return;
+        if (slotIndex < 0) return;
 
         ItemStack itemInSlot = GetItem();
         if (itemInSlot != null)

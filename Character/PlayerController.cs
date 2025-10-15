@@ -8,9 +8,9 @@ public class PlayerController : MonoBehaviour, ICharacterController
     public Character character;
 
     [SerializeField]
-    private SimpleInventoryRenderer otherInv;
+    private SimpleInventoryMenu otherInv;
     [SerializeField]
-    private SimpleInventoryRenderer characterInv;
+    private SimpleInventoryMenu characterInv;
     [SerializeField]
     private Image background;
     [SerializeField]

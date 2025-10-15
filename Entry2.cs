@@ -2,15 +2,16 @@
 
 public class Entry2 : MonoBehaviour 
 {
-    public LineDrawerer lineDrawerer;
+    public TradeMenu tradeMenu;
+    public Item coin, book, twig;
+    public bool ownerView;
 
-    private void Update()
+    private void Start()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity)) 
-        {
-            lineDrawerer.UpdateBounds(hit.collider);
-        }
+        TradeModel model = new TradeModel();
+        model.AddTrade(new ItemStack(coin), new ItemStack(book));
+        model.AddTrade(new ItemStack(coin), new ItemStack(twig));
+        tradeMenu.Model = model;
+        tradeMenu.UpdateRender(ownerView);
     }
 }

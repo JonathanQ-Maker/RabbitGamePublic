@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class SimpleInventoryRenderer : MonoBehaviour
+public class SimpleInventoryMenu : MonoBehaviour
 {
     private SimpleInventory inventory;
     public SimpleInventory Inventory 
