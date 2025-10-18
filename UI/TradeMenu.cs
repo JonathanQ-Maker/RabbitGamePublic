@@ -32,9 +32,12 @@ public class TradeMenu : MonoBehaviour
     private ItemSlotUI fromSlot, toSlot;
 
     private TradeOptionUI selectedOption;
+    private bool ownerView;
     public void OnSliderValueChange() 
     {
-        //Debug.Log($"TradeMenu slider changed. Value = {slider.value}");
+        if (selectedOption == null) return;
+        selectedOption.Option.From.Count = (int)slider.value;
+        selectedOption.UpdateRender(ownerView);
     }
 
     public void OnOptionSelectEvent(TradeOptionUI option, bool selected)
@@ -42,22 +45,30 @@ public class TradeMenu : MonoBehaviour
         if (selectedOption != null) selectedOption.Selected = false;
         selectedOption = selected ? option : null;
         if (selectedOption != null) selectedOption.Selected = true;
+        slider.gameObject.SetActive(selectedOption != null && ownerView);
+
+        if (selectedOption == null) return;
+        slider.minValue = 1;
+        slider.maxValue = 99;
+        slider.value = selectedOption.Option.From.Count;
+    }
+
+    public void OnClickTrade()
+    {
+        if (selectedOption == null) return;
+        Model.Trade(selectedOption.transform.GetSiblingIndex());
+        fromSlot.UpdateRender();
+        toSlot.UpdateRender();
+        selectedOption.UpdateRender(ownerView);
     }
 
     public void UpdateRender(bool ownerView)
     {
+        this.ownerView = ownerView;
         selectedOption = null;
         foreach (Transform child in optionsHolder) 
         { 
             Destroy(child.gameObject);
-        }
-
-        for (int i = 0; i < model.NumTrades; i++)
-        {
-            TradeOptionUI option = Instantiate(optionPrefab, optionsHolder);
-            option.Option = model.GetTrade(i);
-            option.UpdateRender(ownerView);
-            option.onSelectHandler = OnOptionSelectEvent;
         }
 
         slider.gameObject.SetActive(ownerView);
@@ -66,5 +77,15 @@ public class TradeMenu : MonoBehaviour
         collectionSlot.UpdateRender();
         fromSlot.UpdateRender();
         toSlot.UpdateRender();
+
+        for (int i = 0; i < model.NumTrades; i++)
+        {
+            TradeOptionUI option = Instantiate(optionPrefab, optionsHolder);
+            option.Option = model.GetTrade(i);
+            option.UpdateRender(ownerView);
+            option.onSelectHandler = OnOptionSelectEvent;
+
+            if (i == 0) OnOptionSelectEvent(option, true);
+        }
     }
 }

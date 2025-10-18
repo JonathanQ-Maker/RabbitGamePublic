@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 public class TradeModel : IItemContainer
 {
@@ -9,6 +11,17 @@ public class TradeModel : IItemContainer
     public int NumTrades
     {
         get { return options.Count; }
+    }
+
+    public ItemStack Offer {
+        get { return exchangeSlots[0]; }
+        set { exchangeSlots[0] = value; }
+    }
+
+    public ItemStack To
+    {
+        get { return exchangeSlots[1]; }
+        set { exchangeSlots[1] = value; }
     }
 
     public TradeModel()
@@ -50,6 +63,8 @@ public class TradeModel : IItemContainer
 
     public bool CanTrade(int tradeIndex, ItemStack offer)
     {
+        if (To != null && (!To.IsSimilar(options[tradeIndex].To) || To.Count == To.Item.MaxStackCount)) return false;
+        if (options[tradeIndex].From == null || options[tradeIndex].To == null) return false;
         if (options[tradeIndex].From.IsSimilar(offer) && options[tradeIndex].To.Count >= 1)
         {
             if (offer.Count >= options[tradeIndex].From.Count)
@@ -62,11 +77,19 @@ public class TradeModel : IItemContainer
         return false;
     }
 
-    public ItemStack Trade(int tradeIndex, ItemStack offer) 
-    { 
-        if (!CanTrade(tradeIndex, offer)) return null;
+    public void Trade(int tradeIndex)
+    {
+        if (!CanTrade(tradeIndex, Offer)) return;
 
-        offer.SplitStack(out ItemStack income, options[tradeIndex].From.Count);
+        if (Offer.SplitStack(out ItemStack income, options[tradeIndex].From.Count) == 0)
+        {
+            // amount split was zero, so this must be the only offer item
+            income = Offer;
+            Offer = null;
+        }
+
+
+        // put the offer into collection
         if (collecion == null)
         {
             collecion = income;
@@ -76,12 +99,21 @@ public class TradeModel : IItemContainer
             collecion.CombineStack(income, income.Count);
         }
 
-        options[tradeIndex].To.SplitStack(out ItemStack cost, 1);
-        if (options[tradeIndex].To.Count == 0) 
+        // take one item out of to trade stacj
+        if (options[tradeIndex].To.SplitStack(out ItemStack cost, 1) == 0)
         {
-            RemoveTrade(tradeIndex);
+            cost = options[tradeIndex].To;
+            options[tradeIndex].To = null;
         }
-        return cost;
+
+        if (To == null)
+        {
+            To = cost;
+        }
+        else 
+        { 
+            To.CombineStack(cost, cost.Count);
+        }
     }
 }
 

@@ -10,7 +10,7 @@ public class Item : ScriptableObject
 
 
     [SerializeField]
-    [Range(1, 99)]
+    [Range(1, 999)]
     private int maxStackCount;
     public int MaxStackCount { get { return maxStackCount; } }
 

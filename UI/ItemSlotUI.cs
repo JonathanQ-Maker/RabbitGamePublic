@@ -36,7 +36,6 @@ public class ItemSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPo
         // TODO: render the item
         foreach (Transform child in itemHolder)
         {
-            Debug.Log("Slot UpdateRender destroy");
             Destroy(child.gameObject);
         }
 
