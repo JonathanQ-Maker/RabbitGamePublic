@@ -6,7 +6,10 @@ public class PlayerController : MonoBehaviour, ICharacterController
 {
     private int selectMask = 9;
     public Character character;
+    public bool ownerView;
 
+    [SerializeField]
+    private TradeMenu tradeMenu;
     [SerializeField]
     private SimpleInventoryMenu otherInv;
     [SerializeField]
@@ -100,13 +103,13 @@ public class PlayerController : MonoBehaviour, ICharacterController
     {
         if (Input.GetKeyDown(KeyCode.E)) 
         {
-            if (otherInv.gameObject.activeSelf || characterInv.gameObject.activeSelf)
+            if (background.gameObject.activeSelf)
             {
-                CloseSimpleInv();
+                OnClose();
                 return;
             }
 
-            OpenSimpleInv(null);
+            OpenCharacterInv();
         }
     }
 
@@ -115,25 +118,48 @@ public class PlayerController : MonoBehaviour, ICharacterController
         if (result is SimpleInventory inventory)
         {
             OpenSimpleInv(inventory);
+            return;
+        }
+
+        if (result is TradeModel model)
+        {
+            OpenTradeMenu(model);
         }
     }
 
     public void OnClose()
     {
+        CloseCharacterInv();
         CloseSimpleInv();
+        CloseTradeMenu();
     }
 
-    private void OpenSimpleInv(SimpleInventory inventory) 
+    private void OpenCharacterInv()
     {
-        if (inventory != null) { 
-            otherInv.Inventory = inventory;
-            otherInv.UpdateRender();
-            otherInv.gameObject.SetActive(true);
-        }
         characterInv.Inventory = character.Inventory;
         characterInv.UpdateRender();
         characterInv.gameObject.SetActive(true);
         background.gameObject.SetActive(true);
+    }
+
+    private void CloseCharacterInv()
+    {
+        characterInv.Inventory = null;
+        characterInv.UpdateRender();
+        characterInv.gameObject.SetActive(false);
+
+        background.gameObject.SetActive(false);
+    }
+
+    private void OpenSimpleInv(SimpleInventory inventory) 
+    {
+        if (inventory != null) 
+        {
+            otherInv.Inventory = inventory;
+            otherInv.UpdateRender();
+            otherInv.gameObject.SetActive(true);
+            OpenCharacterInv();
+        }
     }
 
     private void CloseSimpleInv()
@@ -141,11 +167,23 @@ public class PlayerController : MonoBehaviour, ICharacterController
         otherInv.Inventory = null;
         otherInv.UpdateRender();
         otherInv.gameObject.SetActive(false);
+    }
 
-        characterInv.Inventory = null;
-        characterInv.UpdateRender();
-        characterInv.gameObject.SetActive(false);
+    private void OpenTradeMenu(TradeModel model)
+    {
+        if (model != null)
+        {
+            tradeMenu.Model = model;
+            tradeMenu.UpdateRender(ownerView);
+            tradeMenu.gameObject.SetActive(true);
+            OpenCharacterInv();
+        }
+    }
 
-        background.gameObject.SetActive(false);
+    private void CloseTradeMenu()
+    {
+        tradeMenu.Model = null;
+        tradeMenu.UpdateRender(ownerView);
+        tradeMenu.gameObject.SetActive(false);
     }
 }

@@ -45,12 +45,16 @@ public class TradeMenu : MonoBehaviour
         if (selectedOption != null) selectedOption.Selected = false;
         selectedOption = selected ? option : null;
         if (selectedOption != null) selectedOption.Selected = true;
-        slider.gameObject.SetActive(selectedOption != null && ownerView);
+        slider.gameObject.SetActive(ownerView && selectedOption != null);
 
         if (selectedOption == null) return;
         slider.minValue = 1;
         slider.maxValue = 99;
-        slider.value = selectedOption.Option.From.Count;
+
+        if (selectedOption.Option.From != null)
+        {
+            slider.value = selectedOption.Option.From.Count;
+        }
     }
 
     public void OnClickTrade()
@@ -71,13 +75,14 @@ public class TradeMenu : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        slider.gameObject.SetActive(ownerView);
+        slider.gameObject.SetActive(ownerView && selectedOption != null);
         collection.SetActive(ownerView);
         exchange.SetActive(!ownerView);
         collectionSlot.UpdateRender();
         fromSlot.UpdateRender();
         toSlot.UpdateRender();
 
+        if (model == null) return;
         for (int i = 0; i < model.NumTrades; i++)
         {
             TradeOptionUI option = Instantiate(optionPrefab, optionsHolder);

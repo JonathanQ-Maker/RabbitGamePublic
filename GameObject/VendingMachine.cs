@@ -2,21 +2,30 @@
 
 public class VendingMachine : MonoBehaviour, IOpenable
 {
-    public Vector3 Position => transform.position;
+    private TradeModel tradeModel;
+    public TradeModel TradeMenu { get { return tradeModel; } }
+
+    [Range(1, 10)]
+    public int tradeSlots;
+
 
     [SerializeField]
     private Animator animator;
-    private SimpleInventory inventory;
+    [SerializeField]
+    private Item coin;
 
     private void Start()
     {
-        inventory = new SimpleInventory(5);
+        tradeModel = new TradeModel();
+
+        for (int i = 0; i < tradeSlots; i++)
+            tradeModel.AddTrade(new ItemStack(coin), null);
     }
 
     public object Open(object source)
     {
         animator.SetTrigger("HatchFlip");
-        return inventory;
+        return tradeModel;
     }
 
     public void Close()

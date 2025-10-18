@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 
 public class TradeModel : IItemContainer
 {
@@ -81,12 +79,8 @@ public class TradeModel : IItemContainer
     {
         if (!CanTrade(tradeIndex, Offer)) return;
 
-        if (Offer.SplitStack(out ItemStack income, options[tradeIndex].From.Count) == 0)
-        {
-            // amount split was zero, so this must be the only offer item
-            income = Offer;
-            Offer = null;
-        }
+        Offer.SplitStack(out ItemStack income, options[tradeIndex].From.Count);
+        if (Offer.Count == 0) Offer = null;
 
 
         // put the offer into collection
@@ -99,12 +93,9 @@ public class TradeModel : IItemContainer
             collecion.CombineStack(income, income.Count);
         }
 
-        // take one item out of to trade stacj
-        if (options[tradeIndex].To.SplitStack(out ItemStack cost, 1) == 0)
-        {
-            cost = options[tradeIndex].To;
-            options[tradeIndex].To = null;
-        }
+        // take one item out of to trade stack
+        options[tradeIndex].To.SplitStack(out ItemStack cost, 1);
+        if (options[tradeIndex].To.Count == 0) options[tradeIndex].To = null;
 
         if (To == null)
         {
@@ -134,7 +125,7 @@ public class TradeOption : IItemContainer
 
     public TradeOption(ItemStack from, ItemStack to) 
     {
-        items = new ItemStack[2] { from, to };
+        items = new ItemStack[] { from, to };
     }
 
     public ItemStack GetItem(int index)

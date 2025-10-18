@@ -239,16 +239,11 @@ public class UIItemRenderer : MonoBehaviour, IBeginDragHandler, IEndDragHandler,
                 if (slotUI.GetItem() != null)
                     goto Next;
 
-                if (ItemStack.SplitStack(out ItemStack newStack, 1) > 0)
+                if (ItemStack.SplitStack(out ItemStack newStack, 1) == 1)
                 {
                     // can split stack for empty slot
                     slotUI.SetItem(newStack);
-                }
-                else
-                {
-                    if (ItemStack.Count > 0)
-                        slotUI.SetItem(ItemStack);
-                    ItemStack = null;    
+                    if (ItemStack.Count == 0) ItemStack = null;
                 }
                 slotUI.UpdateRender();
                 UpdateRender();

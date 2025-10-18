@@ -78,7 +78,7 @@ public class Item : ScriptableObject
 
     public virtual int SplitStack(ItemStack itemStack, out ItemStack newStack, int amountRequested)
     {
-        int amountSplit = Mathf.Min(amountRequested, itemStack.Count - 1, MaxStackCount);
+        int amountSplit = Mathf.Min(amountRequested, itemStack.Count, MaxStackCount);
         amountSplit = Mathf.Max(amountSplit, 0);
 
         if (amountSplit == 0)
