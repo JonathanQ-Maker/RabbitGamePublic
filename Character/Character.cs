@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class Character : MonoBehaviour, IJsonSerializable
+public class Character : MonoBehaviour, IJsonSerializable, ICharacter
 {
     private IEnumerator actionLoop;
     private IEnumerator ActionLoop

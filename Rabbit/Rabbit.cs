@@ -2,8 +2,9 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
-public class Rabbit : MonoBehaviour, IJsonSerializable
+public class Rabbit : MonoBehaviour, IJsonSerializable, ICharacter
 {
     private IEnumerator actionLoop;
     private IEnumerator ActionLoop
@@ -63,6 +64,12 @@ public class Rabbit : MonoBehaviour, IJsonSerializable
         set { gridSize = Mathf.Max(value, 5); }
     }
 
+    public SimpleInventory Inventory { get { return null; } }
+
+    private object openedObject;
+    public object OpenedObject => openedObject;
+    public bool Mounted { get { return false; } }
+
 
     private ColliderInformer colliderInformer;
 
@@ -84,6 +91,61 @@ public class Rabbit : MonoBehaviour, IJsonSerializable
                 ActionLoop = TraversePath(result.Path, true);
             }
         });
+    }
+
+    public void StartLookAt(Vector3 target)
+    {
+        ActionLoop = RigidBodyMover.LookAt(rb, target);
+    }
+
+    public void StartUse(IUsable usable)
+    {
+        if (usable is Component component)
+        {
+            StartMoveTo(component.transform.position);
+            return;
+        }
+
+        usable.Use();
+    }
+
+    public void StartOpen(IOpenable openable)
+    {
+        if (openable is Component component)
+        {
+            StartMoveTo(component.transform.position);
+            return;
+        }
+    }
+
+    public void CloseContainer() 
+    {
+
+    }
+
+    public void StartMount(IMountable mountable)
+    { 
+    
+    }
+
+    public void DisMount()
+    { 
+    
+    }
+
+    public void StartGetItem(WorldItemRenderer worldItem)
+    {
+
+    }
+
+    public void Subscribe(ICharacterController controller)
+    { 
+
+    }
+
+    public void Unsubscribe(ICharacterController controller)
+    {
+
     }
 
 

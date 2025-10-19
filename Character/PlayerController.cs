@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour, ICharacterController
 {
     private int selectMask = 9;
-    public Character character;
+    public GameObject characterObject;
     public bool ownerView;
 
     [SerializeField]
@@ -18,9 +18,11 @@ public class PlayerController : MonoBehaviour, ICharacterController
     private Image background;
     [SerializeField]
     private LineDrawerer lineDrawerer;
+    private ICharacter character;
 
     private void Start()
     {
+        character = characterObject.GetComponent<ICharacter>();
         character.Subscribe(this);
     }
 
