@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class TradeOptionUI : MonoBehaviour, ISelectHandler
+public class TradeOptionUI : MonoBehaviour, ISelectHandler, IItemContainer
 {
     private TradeOption option;
     public TradeOption Option 
@@ -11,7 +11,6 @@ public class TradeOptionUI : MonoBehaviour, ISelectHandler
         { 
             option = value;
             fromSlot.SetContainer(0, option);
-            toSlot.SetContainer(1, option);
         }
     }
 
@@ -25,6 +24,7 @@ public class TradeOptionUI : MonoBehaviour, ISelectHandler
     private ItemSlotUI fromSlot, toSlot;
     [SerializeField]
     private GameObject selectBorder;
+    private ItemStack previewItem;
 
     public delegate void OnSelectEvent(TradeOptionUI option, bool selected);
     public OnSelectEvent onSelectHandler;
@@ -33,6 +33,22 @@ public class TradeOptionUI : MonoBehaviour, ISelectHandler
     {
         toSlot.Background = ownerView;
         toSlot.interactable = ownerView;
+        if (ownerView)
+        {
+            toSlot.SetContainer(1, option);
+        }
+        else 
+        {
+            if (option.To == null)
+            {
+                previewItem = null;
+            }
+            else
+            {
+                previewItem = new ItemStack(option.To.Item);
+            }
+            toSlot.SetContainer(0, this);
+        }
         fromSlot.UpdateRender();
         toSlot.UpdateRender();
     }
@@ -50,5 +66,15 @@ public class TradeOptionUI : MonoBehaviour, ISelectHandler
     private void OnDisable()
     {
         onSelectHandler?.Invoke(this, false);
+    }
+
+    public ItemStack GetItem(int index)
+    {
+        return previewItem;
+    }
+
+    public void SetItem(int index, ItemStack itemStack)
+    {
+        previewItem = itemStack;
     }
 }
