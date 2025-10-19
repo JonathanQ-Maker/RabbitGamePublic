@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 public class Rabbit : MonoBehaviour, IJsonSerializable, ICharacter
 {
