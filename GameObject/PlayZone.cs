@@ -9,7 +9,7 @@ public class PlayZone : MonoBehaviour
     [Range(1f, 20f)]
     public float height = 5f;
 
-    private void Start()
+    private void Awake()
     {
         UpdateZone();
     }

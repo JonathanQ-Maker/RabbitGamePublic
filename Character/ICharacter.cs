@@ -5,6 +5,7 @@ public interface ICharacter
     bool Mounted { get; }
     SimpleInventory Inventory { get; }
     object OpenedObject { get; }
+    GameObject gameObject { get; }
 
     void StartMoveTo(Vector3 target);
     void StartLookAt(Vector3 target);
