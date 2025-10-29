@@ -107,7 +107,8 @@ public class PlayerController : MonoBehaviour, ICharacterController
         {
             if (background.gameObject.activeSelf)
             {
-                OnClose();
+                character.CloseContainer();
+                CloseCharacterInv();
                 return;
             }
 

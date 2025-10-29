@@ -12,14 +12,14 @@ public class VendingMachine : MonoBehaviour, IOpenable
     [SerializeField]
     private Animator animator;
     [SerializeField]
-    private Item coin;
+    private Item currency;
 
     private void Start()
     {
         tradeModel = new TradeModel();
 
         for (int i = 0; i < tradeSlots; i++)
-            tradeModel.AddTrade(new ItemStack(coin), null);
+            tradeModel.AddTrade(new ItemStack(currency), null);
     }
 
     public object Open(object source)
